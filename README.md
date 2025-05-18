@@ -42,11 +42,11 @@ The core idea is to provide accurate, context-aware responses without relying on
 
 ---
 
-## 🛠 Tools and Technologies (Examples)
+## 🛠 Tools and Technologies
 
 The project can be implemented with Python and may use tools and libraries such as:
 
-- Large Language Models (e.g., OpenAI GPT) for summarization and answer generation  
+- Large Language Models (e.g., Ollama) for summarization and answer generation  
 - Vector databases or search libraries for efficient document indexing and retrieval  
 - Web frameworks (e.g., Streamlit) for building the user interface  
 - Environment variables for secure API key management  
@@ -57,23 +57,38 @@ The project can be implemented with Python and may use tools and libraries such 
 ## ⚙ How to Run the Project
 
 1. Prepare your Python environment (create and activate a virtual environment).  
-2. Install all required dependencies manually or using your preferred package manager.  
+2. Install all required dependencies.  
 3. Configure environment variables with your API keys for the language model and online search (if used).  
 4. Launch the user interface application.  
 5. Upload documents or ask questions via the UI.
 
 ---
 
-## 🗂 Project Structure Example
+## Prerequisites to Run the Project
+To successfully run this concert tours information retrieval service, please make sure you have the following installed on your machine:
 
-/
-├── documents/ # Folder for storing raw input documents
-├── faiss_db/ # Storage for indexed data (e.g., vector database files)
-├── qa_system.py # Script/module for handling queries and generating answers
-├── online_lookup.py # (Optional) Module for online data fetching
-├── main.py # User interface application
-└── README.md # Project overview and instructions
+Python 3.8 or higher — the project is written in Python, so a modern version is required.
 
+Virtual environment tool (like venv) — recommended to isolate project dependencies.
+
+Git — to clone and manage the repository.
+
+Required Python packages:
+Although requirements.txt is not included, the project depends on these main libraries:
+
+langchain — for vector search and RAG system.
+
+faiss-cpu — for efficient vector similarity search.
+
+serpapi — for optional online artist search via SerpAPI.
+
+streamlit (optional) — if you want to use the user interface.
+
+Other typical libraries like numpy, requests, etc., may also be used.
+
+API Keys:
+
+SerpAPI key if you want to enable online search functionality. This key should be set as an environment variable (e.g., SERPAPI_KEY) and never hardcoded in the code.
 
 
 

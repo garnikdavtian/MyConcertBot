@@ -1,0 +1,6 @@
+Performer: Ariana Grande  
+Concert Date: September 20, 2026  
+City: Tokyo  
+Ticket Price: $170  
+Place: Tokyo Dome  
+Price of tickets: $80-210  

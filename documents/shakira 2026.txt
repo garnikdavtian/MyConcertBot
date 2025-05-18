@@ -1,0 +1,6 @@
+Performer: Shakira  
+Concert Date: May 5, 2026 
+City: Barcelona  
+Ticket Price: $125  
+Place: Camp Nou  
+Price of tickets: $55-150  

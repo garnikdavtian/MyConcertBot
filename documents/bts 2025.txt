@@ -1,0 +1,6 @@
+Performer: BTS  
+Concert Date: November 15, 2025  
+City: Seoul  
+Ticket Price: $200  
+Place: Olympic Stadium  
+Price of tickets: $90-250  

@@ -1,0 +1,6 @@
+Performer: Metallica  
+Concert Date: June 15, 2026 
+City: Moscow  
+Ticket Price: $140  
+Place: Luzhniki Stadium  
+Price of tickets: $60-170  

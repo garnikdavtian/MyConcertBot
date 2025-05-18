@@ -1,0 +1,6 @@
+Performer: Justin Bieber  
+Concert Date: August 8, 2026  
+City: Miami  
+Ticket Price: $160  
+Place: Hard Rock Stadium  
+Price of tickets: $70-190  

@@ -1,0 +1,6 @@
+Performer: Ed Sheeran  
+Concert Date: June 30, 2025  
+City: New York  
+Ticket Price: $150  
+Place: Madison Square Garden  
+Price of tickets: $70-180  

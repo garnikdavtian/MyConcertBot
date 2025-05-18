@@ -1,0 +1,6 @@
+Performer: Bruno Mars  
+Concert Date: September 3, 2025  
+City: Las Vegas  
+Ticket Price: $180  
+Place: MGM Grand Garden Arena  
+Price of tickets: $80-200  

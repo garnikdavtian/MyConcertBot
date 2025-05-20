@@ -6,7 +6,7 @@ def search_artist_online(query: str) -> str:
     params = {
         "engine": "google",
         "q": query,
-        "api_key": "SERPAPI_KEY"
+        "api_key": os.getenv("SERPAPI_KEY")
     }
 
     try:

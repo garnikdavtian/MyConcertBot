@@ -1,79 +1,56 @@
-from langchain_community.embeddings import OllamaEmbeddings
-from langchain_community.chat_models import ChatOllama
-from typing import Optional, Union
+import logging
+from typing import Optional
 
+from langchain_community.chat_models import ChatOllama
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Initialize the global language model instance
 language_model = ChatOllama(model="llama3")
 
 
 def summarize_text(text: str, language_model: ChatOllama) -> Optional[str]:
     """
-    Summarize a chunk of text (specifically focused on concert-related documents)
-    into 3–4 sentences using the provided LLM. If the document is unrelated to concerts,
-    returns exactly "This document does not appear to be concert-related.".
+    Summarize the given text into 1-2 sentences with a concert-specific focus.
+
+    If the document does not relate to concerts or music events,
+    the function returns a predefined rejection message.
 
     Args:
-        text (str): The raw document text.
-        language_model (ChatOllama): An instance of the Ollama-based chat model.
+        text (str): Full input document content.
+        language_model (ChatOllama): Ollama-based LLM instance.
 
     Returns:
-        Optional[str]: The summary (3–4 sentences) or None if something goes wrong.
+        Optional[str]: A summary or specific rejection message.
     """
     prompt = f"""
-You are a helpful assistant that summarizes concert tour documents.
-Summarize the content below into 3–4 sentences.
+Extract only the technical event details from the following concert-related text. Include the following fields only if they appear explicitly or implicitly in the text (e.g., inferred from date formats or phrases like "tickets start at..."):
 
-If the content is not related to concerts, tours, schedules, venues, or performers,
-respond exactly with:
+- Event name:
+- Artist/Band:
+- Venue:
+- City/Country:
+- Date:
+- Time:
+- Ticket price(s):
+- Age restriction:
+- Ticket link:
+
+If the document contains vague or partial information (e.g., "returning in 2026", "concert in London this summer"), include the field with that phrasing.
+
+Return your answer as a bullet list in this exact format, AND LEAVE OUT ONLY THE LINES THAT ARE ABSOLUTELY NOT MENTIONED.
+Do not explain or comment. Do not mention speculation.
+
+If the text is not related to music events, reply with exactly:
 "This document does not appear to be concert-related."
 
-Document:
-{text}
-
-Summary:"""
-
+Text:
+{text.strip()}
+"""
     try:
-        response = language_model.invoke(prompt)
-        # Depending on how ChatOllama returns, pull out “content”
-        if hasattr(response, "content"):
-            return response.content.strip()
-        elif isinstance(response, dict) and "content" in response:
-            return response["content"].strip()
-        else:
-            return None
+        result = language_model.invoke(prompt)
+        return result.content.strip()
     except Exception as e:
-        # Log the exception somewhere or print it for debugging
-        print(f"[summarize_text] Exception: {e}")
+        logging.error(f"Summarization error: {e}")
         return None
-
-
-def is_concert_related_text(text: str, language_model: ChatOllama) -> bool:
-    """
-    Ask the LLM whether a given text is concert-related (venues, performers, tours, etc.).
-    Returns True if the LLM says “yes”.
-
-    Args:
-        text (str): The raw text to classify.
-        language_model (ChatOllama): An instance of the Ollama-based chat model.
-
-    Returns:
-        bool: True if the LLM answers “yes”, False otherwise.
-    """
-    prompt = (
-        "Is the following text related to concerts, tours, venues, performers, schedules, or logistics? "
-        "Reply only 'yes' or 'no'.\n\n"
-        f"{text}"
-    )
-    try:
-        response = language_model.invoke(prompt)
-        response_text = ""
-        if hasattr(response, "content"):
-            response_text = response.content
-        elif isinstance(response, dict) and "content" in response:
-            response_text = response["content"]
-        else:
-            response_text = str(response)
-        print(f"[is_concert_related_text] LLM Response: {response_text}")
-        return "yes" in response_text.lower()
-    except Exception as e:
-        print(f"[is_concert_related_text] Exception: {e}")
-        return False

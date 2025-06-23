@@ -1,0 +1,9 @@
+langchain
+langchain-community
+ollama==0.2.0
+python-dotenv==1.0.1
+google-search-results
+spacy
+thinc
+blis
+numpy # Just to be explicit, but it should come in as a dependency

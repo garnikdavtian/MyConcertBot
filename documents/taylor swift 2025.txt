@@ -1,6 +1,0 @@
-Performer: Taylor Swift  
-Concert Date: May 10, 2025  
-City: Chicago  
-Ticket Price: $220  
-Place: Soldier Field  
-Price of tickets: $100-300  

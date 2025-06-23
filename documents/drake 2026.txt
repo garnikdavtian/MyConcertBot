@@ -1,6 +1,0 @@
-Performer: Drake  
-Concert Date: November 5, 2026
-City: Houston  
-Ticket Price: $155  
-Place: Toyota Center  
-Price of tickets: $70-180  

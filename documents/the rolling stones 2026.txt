@@ -1,6 +1,0 @@
-Performer: The Rolling Stones  
-Concert Date: October 1, 2026 
-City: Rome  
-Ticket Price: $210  
-Place: Stadio Olimpico  
-Price of tickets: $100-250  

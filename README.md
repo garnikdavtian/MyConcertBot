@@ -1,109 +1,96 @@
-# 🎵 Concert Tour Info Retrieval Service
+# 🎶 Concert Knowledge Assistant
 
----
+This project provides a Streamlit-based AI assistant designed to answer questions about concerts, tours, venues, and performers. It leverages local document ingestion into a FAISS vector store and uses Ollama for large language model (LLM) interactions. When local information is insufficient, it can fall back to online searches via SerpAPI.
 
-## 🚀 Project Overview
+## ✨ Features
 
-This Python service is designed to intelligently manage and retrieve detailed information about upcoming concert tours for 2025–2026.  
-It allows users to:
+-   **Document Ingestion:** Upload or paste text documents related to concerts. The system summarizes content and stores it in a local FAISS vector database.
+-   **Concert-Related Filtering:** Automatically checks if ingested or queried text is relevant to concerts before processing.
+-   **Chat Assistant:** Ask questions about ingested documents.
+-   **Online Fallback:** If a question cannot be answered from the local knowledge base, the system performs an online search (via SerpAPI) and provides relevant snippets.
+-   **Local LLM Support:** Uses Ollama for all language model operations, allowing for offline use once models are downloaded.
 
-- Upload new documents related to concert tours (plans, schedules, venues, performers, logistics)  
-- Query the system to get precise answers strictly based on the ingested documents  
+## 🚀 Getting Started
 
-The core idea is to provide accurate, context-aware responses without relying on general external knowledge.
+Follow these steps to set up and run the Concert Knowledge Assistant.
 
----
+### 📋 Prerequisites
 
-## 🔑 Core Functionalities
+Before you begin, ensure you have the following installed:
 
-### 1. Document Ingestion  
-- Analyzes incoming documents to check if they belong to the concert tour domain  
-- If irrelevant, informs the user that the document cannot be ingested  
-- If relevant, generates a concise summary of the document content  
-- Indexes the summary for fast retrieval later  
-- Returns the summary as confirmation to the user
+-   **Python 3.9+:**
+    ```bash
+    python --version
+    ```
+-   **Ollama:** Download and install Ollama from [ollama.com](https://ollama.com/).
+    -   After installation, pull the required models:
+        ```bash
+        ollama pull llama3
+        ollama pull nomic-embed-text
+        ```
+-   **SerpAPI Key (Optional but Recommended):** For online search fallback, you'll need an API key from [serpapi.com](https://serpapi.com/). Set it as an environment variable `SERPAPI_KEY`.
 
-### 2. Question Answering  
-- Receives user queries about concert tours  
-- Searches the indexed documents for relevant information  
-- Generates precise answers based strictly on the retrieved data
+### 📦 Installation
 
-### 3. Optional Bonus Feature: Online Search  
-- If no documents are provided and the user inputs an artist/band name  
-- Performs online search through public APIs  
-- Retrieves info about upcoming concerts from public sources  
-- Generates an answer based on this external data  
-- This feature is separated from the core document-based system
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/your-username/concert-assistant.git](https://github.com/your-username/concert-assistant.git)
+    cd concert-assistant
+    ```
 
-### 4. User Interface (UI)  
-- Provides a simple and user-friendly interface for interaction  
-- Users can upload documents or type questions  
-- Responses are displayed clearly in the interface
+2.  **Create a virtual environment** (recommended):
+    ```bash
+    python -m venv venv
+    ```
 
----
+3.  **Activate the virtual environment:**
+    -   **macOS/Linux:**
+        ```bash
+        source venv/bin/activate
+        ```
+    -   **Windows:**
+        ```bash
+        .\venv\Scripts\activate
+        ```
 
-## 🛠 Tools and Technologies
+4.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-The project can be implemented with Python and may use tools and libraries such as:
+5.  **Create a `.env` file:**
+    If you plan to use the online search functionality, create a file named `.env` in the root directory of the project and add your SerpAPI key:
+    ```
+    SERPAPI_KEY="YOUR_SERPAPI_KEY_HERE"
+    ```
+    Replace `YOUR_SERPAPI_KEY_HERE` with your actual SerpAPI key.
 
-- Large Language Models (e.g., Ollama) for summarization and answer generation  
-- Vector databases or search libraries for efficient document indexing and retrieval  
-- Web frameworks (e.g., Streamlit) for building the user interface  
-- Environment variables for secure API key management  
-- API wrappers for online search services (optional bonus)
+### ▶️ Running the Application
 
----
+1.  **Ensure Ollama is running:** The `main.py` script will attempt to start the Ollama daemon if it's not already running. You can also manually start it:
+    ```bash
+    ollama serve
+    ```
 
-## ⚙ How to Run the Project
+2.  **Run the Streamlit application:**
+    ```bash
+    streamlit run main.py
+    ```
 
-1. Prepare your Python environment (create and activate a virtual environment).  
-2. Install all required dependencies.  
-3. Configure environment variables with your API keys for the language model and online search (if used).  
-4. Launch the user interface application.  
-5. Upload documents or ask questions via the UI.
+    Your web browser should automatically open to the Streamlit interface (usually `http://localhost:8501`).
 
----
+## 📁 Project Structure
 
-## Prerequisites to Run the Project
-To successfully run this concert tours information retrieval service, please make sure you have the following installed on your machine:
+-   `main.py`: The main Streamlit application logic.
+-   `filter_docs.py`: Handles document ingestion and checking for concert relevance.
+-   `llm_utils.py`: Utility functions for LLM interactions (summarization, relevance check).
+-   `qa_system.py`: Manages the question-answering logic, including FAISS retrieval and online fallback.
+-   `online_lookup.py`: Functions for performing online searches via SerpAPI.
+-   `requirements.txt`: Lists all Python dependencies.
+-   `.gitignore`: Specifies files and directories to be ignored by Git.
+-   `faiss_db/`: (Created automatically) Directory where the FAISS vector store is saved.
+-   `documents/`: (Created automatically) Directory where ingested text files are stored.
 
-Python 3.8 or higher — the project is written in Python, so a modern version is required.
+## 🤝 Contributing
 
-Virtual environment tool (like venv) — recommended to isolate project dependencies.
-
-Git — to clone and manage the repository.
-
-Required Python packages:
-Although requirements.txt is not included, the project depends on these main libraries:
-
-langchain — for vector search and RAG system.
-
-faiss-cpu — for efficient vector similarity search.
-
-serpapi — for optional online artist search via SerpAPI.
-
-streamlit (optional) — if you want to use the user interface.
-
-Other typical libraries like numpy, requests, etc., may also be used.
-
-API Keys:
-
-SerpAPI key if you want to enable online search functionality. This key should be set as an environment variable (e.g., SERPAPI_KEY) and never hardcoded in the code.
-
-
-
----
-
-## 🎯 Why This Project is Valuable
-
-- Demonstrates integration of modern NLP techniques with practical applications  
-- Shows ability to build complex pipelines combining document processing, indexing, and generative answering  
-- Highlights skills in software design, data management, and user interaction  
-- Ready to scale with additional features like online search for real-time data
-
----
-
-## 🙏 Thank You!
-
-
-Feel free to reach out if you want me to clarify or add anything else.
+Contributions are welcome! Please feel free to open issues or submit pull requests.

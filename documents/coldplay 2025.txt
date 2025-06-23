@@ -1,6 +1,0 @@
-Performer: Coldplay  
-Concert Date: July 18, 2025  
-City: London  
-Ticket Price: $120  
-Place: Wembley Stadium  
-Price of tickets: $60-200  

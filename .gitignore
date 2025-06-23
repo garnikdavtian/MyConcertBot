@@ -1,0 +1,8 @@
+__pycache__/
+faiss_db/
+documents/
+*.pyc
+*.pkl
+*.faiss
+installed_packages.txt
+.env

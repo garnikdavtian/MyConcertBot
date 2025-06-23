@@ -1,183 +1,104 @@
 import os
-import shutil
-import subprocess
+import logging
 from datetime import datetime
-import streamlit as st
-import streamlit.components.v1 as components
 
+import streamlit as st
+from dotenv import load_dotenv
 from langchain_community.embeddings import OllamaEmbeddings
-from llm_utils import summarize_text, language_model, is_concert_related_text
+
+from llm_utils import summarize_text, language_model
 from filter_docs import ingest_document, is_concert_related
 from qa_system import answer_query
 
+# Load environment variables
+load_dotenv()
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 # Constants
 DATA_DIR = "documents"
-FAISS_DB_DIR = "faiss_db"
+FAISS_DB_DIR = os.getenv("FAISS_DB_DIR", "faiss_db")
 TXT_EXT = "txt"
+embedding_model = None
 
-
-def ensure_directories() -> None:
-    """
-    Make sure DATA_DIR and FAISS_DB_DIR exist.
-    """
+def ensure_directories():
     os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs(FAISS_DB_DIR, exist_ok=True)
+    logging.info(f"Ensured directories: {DATA_DIR}, {FAISS_DB_DIR}")
 
+st.set_page_config(page_title="MyConcertBot", layout="wide")
+st.title("MyConcertBot 🎶")
+st.markdown("""
+Upload text files and get concert-related content automatically filtered, indexed, and summarized.
+""")
 
-def is_faiss_index_built(db_dir: str) -> bool:
-    """
-    Checks if the FAISS index file exists on disk.
-    """
-    return os.path.exists(os.path.join(db_dir, "index.faiss"))
-
-
-def start_ollama_if_not_running() -> None:
-    """
-    Verifies that Ollama is installed and starts the daemon if not already running.
-    """
-    if shutil.which("ollama") is None:
-        raise RuntimeError("❌ Ollama is not installed or not in PATH.")
-
-    try:
-        subprocess.run(
-            ["ollama", "list"],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-    except subprocess.CalledProcessError:
-
-        subprocess.Popen(["ollama", "serve"])
-
-
-def save_text_file(text: str, filename: str) -> str:
-    """
-    Save raw text to DATA_DIR/filename. Returns the full path.
-    """
-    os.makedirs(DATA_DIR, exist_ok=True)
-    save_path = os.path.join(DATA_DIR, filename)
-    with open(save_path, "w", encoding="utf-8") as f:
-        f.write(text)
-    return save_path
-
-
-def handle_ingestion(
-    text: str,
-    filename: str,
-    language_model,
-    embedding_model,
-) -> None:
-    """
-    Wrapper to save, classify, and ingest text if it’s concert-related.
-    """
-    if not is_concert_related(text, language_model):
-        st.error("❌ Not related to concerts. Skipping ingestion.")
-        return
-
-    # Save file
-    save_path = save_text_file(text, filename)
-    try:
-        ingest_document(text, FAISS_DB_DIR, language_model, embedding_model, filename)
-        st.success(f"📁 '{filename}' ingested successfully.")
-    except Exception as e:
-        st.error(f"❌ Failed to ingest '{filename}': {e}")
-        return
-
-    # Show summary if available
-    summary = summarize_text(text, language_model)
-    if summary:
-        with st.expander("📄 Document Summary"):
-            st.write(summary)
-
-
-def build_faiss_index_if_needed():
-    """
-    On app startup, if there’s no FAISS index, read every .txt in DATA_DIR and ingest.
-    """
-    if is_faiss_index_built(FAISS_DB_DIR):
-        return
-
-    st.warning("⚠️ FAISS index not found. Building now...")
-    for filename in os.listdir(DATA_DIR):
-        if not filename.endswith(f".{TXT_EXT}"):
-            continue
-
-        file_path = os.path.join(DATA_DIR, filename)
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                text = f.read()
-            ingest_document(text, FAISS_DB_DIR, language_model, embedding_model, filename)
-        except Exception as e:
-            st.error(f"❌ Failed to ingest {filename}: {e}")
-
-    st.success("✅ FAISS index built successfully.")
-
-
-# Ensure folders & start Ollama
 ensure_directories()
-start_ollama_if_not_running()
-embedding_model = OllamaEmbeddings(model="nomic-embed-text")
 
-# Streamlit configuration
-st.set_page_config(page_title="🎶 Concerts Assistant", layout="centered")
-st.title("🎤 Concert Knowledge Assistant")
+st.sidebar.header("Options")
+selected_action = st.sidebar.radio("Choose an action:", ["Upload Document", "Ask a Question"])
 
-# Create Tabs
-tabs = st.tabs(["💬 Chat Assistant", "📂 Upload File", "📝 Paste Text"])
+if embedding_model is None:
+    embedding_model = OllamaEmbeddings(model="nomic-embed-text")
 
-# --- Tab 1: Chat Assistant ---
-with tabs[0]:
-    st.subheader("Chat about Concerts")
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+if selected_action == "Upload Document":
+    uploaded_files = st.file_uploader("📂 Upload one or more .txt files", type=[TXT_EXT], accept_multiple_files=True)
 
-    # Display previous chat messages
-    for msg in st.session_state.messages:
-        role = msg["role"]
-        with st.chat_message(role):
-            st.markdown(msg["content"])
+    if uploaded_files:
+        summaries = []
+        progress = st.progress(0, text="🔍 Processing uploaded documents...")
 
-    # New user prompt
-    prompt = st.chat_input("Ask something about concerts...")
-    if prompt:
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+        for i, file in enumerate(uploaded_files):
+            filename = file.name
+            filepath = os.path.join(DATA_DIR, filename)
 
-        with st.spinner("Thinking..."):
             try:
-                answer = answer_query(
-                    language_model, FAISS_DB_DIR, embedding_model, prompt, top_k=4
-                )
+                # Temporary save documents for checking if document is related
+                with open(filepath, "wb") as f:
+                    f.write(file.getbuffer())
+
+                with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+
+                if is_concert_related(content):
+                    with st.spinner(f"📥 Indexing {filename}..."):
+                        ingest_document(filepath, embedding_model, FAISS_DB_DIR)
+
+                    summary = summarize_text(content, language_model)
+                    summaries.append((filename, summary))
+                    st.success(f"✅ {filename} indexed and kept.")
+                else:
+                    # Delete if not related
+                    os.remove(filepath)
+                    summaries.append((filename, "⚠️ Not concert-related. Deleted."))
+                    st.info(f"ℹ️ {filename} was not concert-related and was removed.")
+
             except Exception as e:
-                answer = f"❌ Error: {e}"
+                summaries.append((filename, f"❌ Error: {e}"))
+                st.error(f"Error while processing {filename}: {e}")
+                if os.path.exists(filepath):
+                    os.remove(filepath)
 
-        st.session_state.messages.append({"role": "assistant", "content": answer})
-        with st.chat_message("assistant"):
-            st.markdown(answer)
+            progress.progress((i + 1) / len(uploaded_files), text=f"📄 Processed: {filename}")
 
-# --- Tab 2: Upload File ---
-with tabs[1]:
-    st.subheader("Upload a Text File")
-    uploaded_file = st.file_uploader("Upload .txt file", type=[TXT_EXT])
-    if uploaded_file:
-        try:
-            raw_text = uploaded_file.read().decode("utf-8")
-            handle_ingestion(raw_text, uploaded_file.name, language_model, embedding_model)
-        except Exception as e:
-            st.error(f"❌ Could not read or ingest the file: {e}")
+        progress.empty()
 
-# --- Tab 3: Paste Text ---
-with tabs[2]:
-    st.subheader("Paste Your Own Text")
-    manual_text = st.text_area("Paste concert-related text here")
-    if st.button("Ingest Text"):
-        if manual_text.strip():
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"manual_input_{timestamp}.{TXT_EXT}"
-            handle_ingestion(manual_text, filename, language_model, embedding_model)
-        else:
-            st.warning("⚠️ Please paste some text first.")
+        st.subheader("📝 Summary of processed documents:")
+        for name, summ in summaries:
+            st.markdown(f"**{name}**")
+            st.markdown("```text\n" + summ.strip() + "\n```")
 
-# Build FAISS Index if needed on startup
-build_faiss_index_if_needed()
+elif selected_action == "Ask a Question":
+    user_query = st.text_input("Enter your question:")
+
+    if user_query:
+        with st.spinner("Searching for the answer..."):
+            response = answer_query(user_query, embedding_model, FAISS_DB_DIR)
+        st.markdown("### Answer")
+        st.write(response)
+        if response.startswith("🔎 Here's what I found online"):
+            st.info("🔍 I used online search (SerpAPI) for this answer.")
+
+        with st.expander("Show Summary of the Answer"):
+            summary = summarize_text(response, language_model)
+            st.info(summary)

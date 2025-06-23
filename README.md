@@ -1,96 +1,139 @@
-# 🎶 Concert Knowledge Assistant
+# MyConcertBot 🎶
 
-This project provides a Streamlit-based AI assistant designed to answer questions about concerts, tours, venues, and performers. It leverages local document ingestion into a FAISS vector store and uses Ollama for large language model (LLM) interactions. When local information is insufficient, it can fall back to online searches via SerpAPI.
+**MyConcertBot** is an intelligent assistant that helps you process, filter, and answer concert-related questions using your own documents and fallback online search. Built with LangChain, FAISS, Ollama, and Streamlit, it showcases a real-world Retrieval-Augmented Generation (RAG) pipeline with topic filtering and live web fallback.
 
-## ✨ Features
+---
 
--   **Document Ingestion:** Upload or paste text documents related to concerts. The system summarizes content and stores it in a local FAISS vector database.
--   **Concert-Related Filtering:** Automatically checks if ingested or queried text is relevant to concerts before processing.
--   **Chat Assistant:** Ask questions about ingested documents.
--   **Online Fallback:** If a question cannot be answered from the local knowledge base, the system performs an online search (via SerpAPI) and provides relevant snippets.
--   **Local LLM Support:** Uses Ollama for all language model operations, allowing for offline use once models are downloaded.
+## 🚀 Features
 
-## 🚀 Getting Started
+* Upload `.txt` documents and automatically index only **concert-related** content
+* Ask concert-related questions (e.g. tour dates, venues, ticket prices)
+* If answer not found locally, the bot uses **online search fallback**
+* Built with modular, production-ready code
 
-Follow these steps to set up and run the Concert Knowledge Assistant.
+---
 
-### 📋 Prerequisites
+## ⚙️ Installation & Setup
 
-Before you begin, ensure you have the following installed:
+### 1. Clone the repository
 
--   **Python 3.9+:**
-    ```bash
-    python --version
-    ```
--   **Ollama:** Download and install Ollama from [ollama.com](https://ollama.com/).
-    -   After installation, pull the required models:
-        ```bash
-        ollama pull llama3
-        ollama pull nomic-embed-text
-        ```
--   **SerpAPI Key (Optional but Recommended):** For online search fallback, you'll need an API key from [serpapi.com](https://serpapi.com/). Set it as an environment variable `SERPAPI_KEY`.
+```bash
+git clone https://github.com/your-username/MyConcertBot.git
+cd MyConcertBot
+```
 
-### 📦 Installation
+### 2. Set up Python environment
 
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/your-username/concert-assistant.git](https://github.com/your-username/concert-assistant.git)
-    cd concert-assistant
-    ```
+```bash
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+```
 
-2.  **Create a virtual environment** (recommended):
-    ```bash
-    python -m venv venv
-    ```
+### 3. Add environment variables
 
-3.  **Activate the virtual environment:**
-    -   **macOS/Linux:**
-        ```bash
-        source venv/bin/activate
-        ```
-    -   **Windows:**
-        ```bash
-        .\venv\Scripts\activate
-        ```
+Create a `.env` file in the root of the project and add:
 
-4.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+```env
+SERPAPI_API_KEY=your_key_here
+```
 
-5.  **Create a `.env` file:**
-    If you plan to use the online search functionality, create a file named `.env` in the root directory of the project and add your SerpAPI key:
-    ```
-    SERPAPI_KEY="YOUR_SERPAPI_KEY_HERE"
-    ```
-    Replace `YOUR_SERPAPI_KEY_HERE` with your actual SerpAPI key.
+This key is used for online fallback search when no relevant data is found locally.
 
-### ▶️ Running the Application
+You can also specify a custom FAISS path:
 
-1.  **Ensure Ollama is running:** The `main.py` script will attempt to start the Ollama daemon if it's not already running. You can also manually start it:
-    ```bash
-    ollama serve
-    ```
+```env
+FAISS_DB_DIR=faiss_db
+```
 
-2.  **Run the Streamlit application:**
-    ```bash
-    streamlit run main.py
-    ```
+> **Important**: The `.env` file is already ignored in `.gitignore` and will not be uploaded to GitHub.
 
-    Your web browser should automatically open to the Streamlit interface (usually `http://localhost:8501`).
+---
 
-## 📁 Project Structure
+## 📂 How to Use
 
--   `main.py`: The main Streamlit application logic.
--   `filter_docs.py`: Handles document ingestion and checking for concert relevance.
--   `llm_utils.py`: Utility functions for LLM interactions (summarization, relevance check).
--   `qa_system.py`: Manages the question-answering logic, including FAISS retrieval and online fallback.
--   `online_lookup.py`: Functions for performing online searches via SerpAPI.
--   `requirements.txt`: Lists all Python dependencies.
--   `.gitignore`: Specifies files and directories to be ignored by Git.
--   `faiss_db/`: (Created automatically) Directory where the FAISS vector store is saved.
--   `documents/`: (Created automatically) Directory where ingested text files are stored.
+### Upload Documents:
 
-## 🤝 Contributing
+1. Run the app:
 
-Contributions are welcome! Please feel free to open issues or submit pull requests.
+   ```bash
+   streamlit run main.py
+   ```
+2. In the UI, choose "Upload Document"
+3. Upload `.txt` files — non-concert content is filtered out
+
+### Ask Questions:
+
+1. Select "Ask a Question"
+2. Type questions like:
+
+   * "Where is Dua Lipa performing in 2025?"
+   * "What are the ticket prices for Taylor Swift concerts?"
+
+If local data can't answer the query, MyConcertBot searches online automatically.
+
+---
+
+## 📊 Technologies Used
+
+* **LangChain** for chaining LLM + retrieval logic
+* **FAISS** for fast document vector search
+* **Ollama + Llama3** for offline LLM capabilities
+* **Streamlit** for interactive UI
+* **Custom Filters** for concert-topic detection
+* **Fallback Search** via SerpAPI or web scraping
+
+---
+
+## 🔍 Example Use Case
+
+* Upload a `.txt` file containing a scraped tour schedule
+* Ask: *"When is the Imagine Dragons concert in Berlin?"*
+* If not found locally, it triggers an online search
+
+---
+
+## ⚠️ Notes
+
+* Only supports `.txt` files
+* Questions must be **concert-related** (automatically filtered)
+* FAISS index is regenerated on new uploads
+* GPU FAISS is not required
+
+---
+
+## 🚜 Deployment Suggestion
+
+This project can be deployed locally or via services like **Streamlit Cloud**, **Docker**, or even **Hugging Face Spaces** with minor modifications.
+
+---
+
+## 🚀 Future Improvements
+
+* Support PDFs or other file formats
+* User login for persistent session history
+* Better LLM fallback fine-tuning
+
+---
+
+## 💪 Credits
+
+Built with ❤️ by Garnik. Part of ML/AI engineering portfolio.
+
+---
+
+## 📦 Folder Structure Overview
+
+```
+MyConcertBot/
+├── main.py                  # Streamlit UI
+├── qa_system.py             # RAG logic with FAISS + fallback
+├── llm_utils.py             # LLM summarization utils
+├── filter_docs.py           # Concert-topic filter
+├── online_lookup.py         # Online search logic
+├── requirements.txt         # Dependencies
+├── README.md                # Project info
+├── .gitignore               # Ignore index + cache
+```
+
+---

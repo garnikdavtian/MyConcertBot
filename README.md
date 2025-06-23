@@ -121,17 +121,9 @@ This project can be deployed locally or via services like **Streamlit Cloud**, *
 
 ---
 
-## 🚀 Future Improvements
-
-* Support PDFs or other file formats
-* User login for persistent session history
-* Better LLM fallback fine-tuning
-
----
-
 ## 💪 Credits
 
-Built with ❤️ by Garnik. Part of ML/AI engineering portfolio.
+Part of ML/AI engineering portfolio.
 
 ---
 

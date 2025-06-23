@@ -6,10 +6,10 @@
 
 ## 📸 Screenshots
 
-### Uploading Concert Documents
+### Asking not Concert-related Question
 <img src="screenshots/question_not_related.png" width="700"/>
 
-### Asking a Concert-related Question
+### Uploading Concert Documents
 <img src="screenshots/ingested_doc_summary.png" width="700"/>
 
 ### Online Search Fallback (When FAISS Fails)

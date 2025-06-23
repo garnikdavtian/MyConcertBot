@@ -4,6 +4,19 @@
 
 ---
 
+## 📸 Screenshots
+
+### Uploading Concert Documents
+<img src="screenshots/question_not_related.png" width="700"/>
+
+### Asking a Concert-related Question
+<img src="screenshots/ingested_doc_summary.png" width="700"/>
+
+### Online Search Fallback (When FAISS Fails)
+<img src="screenshots/online_fallback.png" width="700"/>
+
+---
+
 ## 🚀 Features
 
 * Upload `.txt` documents and automatically index only **concert-related** content
